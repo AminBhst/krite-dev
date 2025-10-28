@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package io.github.aminbhst.coordinator;
+option java_outer_classname = "CoordinatorProto";
+
+service Coordinator {
+  rpc RegisterExecutor(ExecutorInfo) returns (RegistrationResponse);
+  rpc SendHeartbeat(ExecutorHeartbeat) returns (HeartbeatResponse);
+  rpc AssignTask(TaskRequest) returns (TaskAssignment);
+}
+
+message RegistrationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ExecutorHeartbeat {
+  string id = 1;
+  double cpu_load = 2;
+  int64 memory_free = 3;
+}
+
+message HeartbeatResponse {
+  bool alive = 1;
+}
+
+message TaskRequest {
+  string taskId = 1;
+  string payload = 2;
+}
+
+message TaskAssignment {
+  string taskId = 1;
+  string payload = 2;
+}
+
+message ExecutorInfo {
+  string node_id = 1;
+
+  string hostname = 2;
+
+  int32 cpu_cores = 3;
+
+  double cpu_load = 4;
+
+  int64 memory_total = 5;
+
+  int64 memory_free = 6;
+
+  map<string, string> metadata = 7;
+}
