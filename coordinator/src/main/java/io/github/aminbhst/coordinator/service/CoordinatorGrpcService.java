@@ -1,6 +1,6 @@
 package io.github.aminbhst.coordinator.service;
 
-
+import io.github.aminbhst.coordinator.executor.ExecutorRegistry;
 import io.github.aminbhst.coordinator.CoordinatorGrpc;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import io.grpc.stub.StreamObserver;
@@ -8,15 +8,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase {
-//    private final ExecutorManager executorManager;
 
-//    public CoordinatorServiceImpl(ExecutorManager executorManager) {
-//        this.executorManager = executorManager;
-//    }
+    private final ExecutorRegistry executorRegistry;
+
+    public CoordinatorGrpcService(ExecutorRegistry executorRegistry) {
+        this.executorRegistry = executorRegistry;
+    }
 
     @Override
     public void registerExecutor(CoordinatorProto.ExecutorInfo request, StreamObserver<CoordinatorProto.RegistrationResponse> responseObserver) {
-//        executorManager.addExecutor(request);
+        executorRegistry.addExecutor(request);
         var response = CoordinatorProto.RegistrationResponse.newBuilder()
                 .setSuccess(true)
                 .setMessage("Executor registered successfully: " + request.getNodeId())
