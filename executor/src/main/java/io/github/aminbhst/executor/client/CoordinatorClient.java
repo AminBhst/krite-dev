@@ -29,7 +29,7 @@ public class CoordinatorClient {
 
     public CoordinatorProto.RegistrationResponse registerExecutor() {
         var request = CoordinatorProto.ExecutorInfo.newBuilder()
-                .setNodeId(UUID.randomUUID().toString())
+                .setExecutorId(UUID.randomUUID().toString())
                 .setHostname(executorConfig.getId())
                 .setCpuLoad(systemMonitor.getCpuLoad())
                 .setCpuCores(systemMonitor.getPhysicalCores())

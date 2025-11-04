@@ -6,7 +6,7 @@ option java_outer_classname = "CoordinatorProto";
 service Coordinator {
   rpc RegisterExecutor(ExecutorInfo) returns (RegistrationResponse);
   rpc SendHeartbeat(ExecutorHeartbeat) returns (HeartbeatResponse);
-  rpc AssignTask(TaskRequest) returns (TaskAssignment);
+  rpc GetTask(TaskRequest) returns (TaskAssignment);
 }
 
 message RegistrationResponse {
@@ -25,17 +25,15 @@ message HeartbeatResponse {
 }
 
 message TaskRequest {
-  string taskId = 1;
-  string payload = 2;
+  string executorId = 1;
 }
 
 message TaskAssignment {
   string taskId = 1;
-  string payload = 2;
 }
 
 message ExecutorInfo {
-  string node_id = 1;
+  string executorId  = 1;
 
   string hostname = 2;
 

@@ -20,7 +20,7 @@ public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase 
         executorRegistry.addExecutor(request);
         var response = CoordinatorProto.RegistrationResponse.newBuilder()
                 .setSuccess(true)
-                .setMessage("Executor registered successfully: " + request.getNodeId())
+                .setMessage("Executor registered successfully: " + request.getExecutorId())
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -32,7 +32,8 @@ public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase 
     }
 
     @Override
-    public void assignTask(CoordinatorProto.TaskRequest request, StreamObserver<CoordinatorProto.TaskAssignment> responseObserver) {
-        super.assignTask(request, responseObserver);
+    public void getTask(CoordinatorProto.TaskRequest request, StreamObserver<CoordinatorProto.TaskAssignment> responseObserver) {
+        var task = executorRegistry.pollTask(request.getExecutorId());
+        super.getTask(request, responseObserver);
     }
 }
