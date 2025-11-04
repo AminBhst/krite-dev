@@ -14,7 +14,7 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT t FROM Task t WHERE t.status = 'IN_QUEUE' ORDER BY t.createdAt ASC")
+    @Query("SELECT t FROM Task t WHERE t.status = 'INITIAL' ORDER BY t.createdAt ASC")
     List<Task> findNextPendingTask(Pageable pageable);
 
 }

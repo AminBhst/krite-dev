@@ -1,4 +1,4 @@
-package io.github.aminbhst.common.minio;
+package io.github.aminbhst.common.storage.minio;
 
 import io.minio.MinioClient;
 import lombok.Getter;

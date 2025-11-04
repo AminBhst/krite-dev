@@ -16,10 +16,8 @@ public class ExecutorRegistry {
     private final Map<String, CoordinatorProto.ExecutorInfo> executors = new ConcurrentHashMap<>();
     private final Map<String, BlockingDeque<Task>> executorTasks = new ConcurrentHashMap<>();
 
-    // expanded list for weighted round robin
     private final List<String> executorsWeighted = new ArrayList<>();
 
-    // keeps track of next executor to use (round-robin index)
     private final AtomicInteger rrIndex = new AtomicInteger(0);
 
     public void addExecutor(CoordinatorProto.ExecutorInfo executor) {
@@ -34,11 +32,13 @@ public class ExecutorRegistry {
         rebuildWeights();
     }
 
-    /** Assigns a new task to the next executor based on weighted RR. */
-    public void pushTask(Task task) {
+    /**
+     * Assigns a new task to the next executor based on weighted RR.
+     */
+    public String pushTask(Task task) {
         if (executorsWeighted.isEmpty()) {
             System.err.println("No executors available to assign task: " + task.getId());
-            return;
+            return null;
         }
 
         String nextId = getNextExecutorId();
@@ -46,21 +46,49 @@ public class ExecutorRegistry {
         if (queue != null) {
             queue.offer(task);
         }
+        return nextId;
     }
 
-    /** Retrieves and removes a task from the executor’s queue. */
     public Task pollTask(String executorId) {
         BlockingDeque<Task> queue = executorTasks.get(executorId);
         return (queue != null) ? queue.poll() : null;
     }
 
-    /** Weighted Round Robin scheduler logic. */
+    public List<CoordinatorProto.TaskAssignment> pollTasks(String executorId, int maxCount) {
+        BlockingDeque<Task> queue = executorTasks.get(executorId);
+        if (queue == null) {
+            return List.of();
+        }
+
+        List<CoordinatorProto.TaskAssignment> batch = new ArrayList<>(maxCount);
+
+        for (int i = 0; i < maxCount; i++) {
+            Task task = queue.poll();
+            if (task == null) break;
+
+            var assignment = CoordinatorProto.TaskAssignment.newBuilder()
+                    .setTaskId(task.getId().toString())
+                    .setSourceFileObjectKey(task.getSourceFileObjectKey())
+                    .setTaskType(String.valueOf(task.getType()))
+                    .build();
+
+            batch.add(assignment);
+        }
+
+        return batch;
+    }
+
+    /**
+     * Weighted Round Robin scheduler logic.
+     */
     private String getNextExecutorId() {
         int i = Math.abs(rrIndex.getAndIncrement() % executorsWeighted.size());
         return executorsWeighted.get(i);
     }
 
-    /** Recomputes weights and rebuilds the expanded executor list. */
+    /**
+     * Recomputes weights and rebuilds the expanded executor list.
+     */
     private synchronized void rebuildWeights() {
         if (executors.isEmpty()) {
             executorsWeighted.clear();
@@ -105,5 +133,9 @@ public class ExecutorRegistry {
             weights.put(e.getExecutorId(), weight);
         }
         return weights;
+    }
+
+    public boolean isEmpty() {
+        return executors.isEmpty();
     }
 }

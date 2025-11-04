@@ -20,7 +20,9 @@ public class Task {
     private TaskType type;
 
     @Column(nullable = false)
-    private String sourceFileHash;
+    private String sourceFileObjectKey;
+
+    private String outputFileObjectKey;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -29,9 +31,11 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    private String assignedNode;
+
     @ManyToOne
-    @JoinColumn(name = "assigned_node_id")
-    private ExecutorNode assignedNode;
+    @JoinColumn(name = "created_by")
+    private AppUser createdBy;
 
     @Column
     private LocalDateTime updatedAt;

@@ -4,11 +4,13 @@ import io.github.aminbhst.coordinator.CoordinatorGrpc;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import io.github.aminbhst.executor.config.ExecutorConfig;
 import io.github.aminbhst.executor.util.SystemMonitor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class CoordinatorClient {
 
     private final CoordinatorGrpc.CoordinatorBlockingStub stub;
@@ -17,14 +19,13 @@ public class CoordinatorClient {
 
     private final ExecutorConfig executorConfig;
 
-    public CoordinatorClient(
-            SystemMonitor systemMonitor,
-            ExecutorConfig executorConfig,
-            CoordinatorGrpc.CoordinatorBlockingStub stub
-    ) {
-        this.systemMonitor = systemMonitor;
-        this.executorConfig = executorConfig;
-        this.stub = stub;
+    public CoordinatorProto.TaskBatch pollTask(int maxTasks) {
+        var request = CoordinatorProto.TaskPollRequest.newBuilder()
+                .setExecutorId(executorConfig.getId())
+                .setMaxTasks(maxTasks)
+                .build();
+
+        return stub.pollTasks(request);
     }
 
     public CoordinatorProto.RegistrationResponse registerExecutor() {

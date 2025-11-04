@@ -1,21 +1,19 @@
-package io.github.aminbhst.executor;
+package io.github.aminbhst.executor.job;
 
 import io.github.aminbhst.executor.client.CoordinatorClient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HeartbeatScheduler {
+@RequiredArgsConstructor
+public class HeartbeatJob {
 
     private static final int MAX_HEARTBEAT_FAILURE = 3;
+    private int heartbeatFailureCount = 0;
 
     private final CoordinatorClient coordinatorClient;
 
-    private int heartbeatFailureCount = 0;
-
-    public HeartbeatScheduler(CoordinatorClient coordinatorClient) {
-        this.coordinatorClient = coordinatorClient;
-    }
 
     @Scheduled(fixedRate = 5_000)
     public void sendHeartbeat() {
