@@ -5,5 +5,5 @@ import io.github.aminbhst.coordinator.CoordinatorProto;
 public interface TaskRunner extends Runnable {
     String getTaskType();
 
-    TaskRunner withAssignment(CoordinatorProto.TaskAssignment assignment);
+    TaskRunner withTask(CoordinatorProto.TaskAssignment assignment);
 }

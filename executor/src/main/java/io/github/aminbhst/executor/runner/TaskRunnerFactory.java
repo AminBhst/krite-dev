@@ -3,7 +3,6 @@ package io.github.aminbhst.executor.runner;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -16,31 +15,23 @@ import java.util.Map;
 public class TaskRunnerFactory {
 
     private final List<TaskRunner> runners;
-    private final Map<String, TaskRunner> registry = new HashMap<>();
+    private final ApplicationContext ctx;
 
-    private ApplicationContext ctx;
-
-    @Autowired
-    public TaskRunnerFactory(List<TaskRunner> runners, ApplicationContext ctx) {
-        this.runners = runners;
-        this.ctx = ctx;
-    }
+    private final Map<String, Class<? extends TaskRunner>> registry = new HashMap<>();
 
     @PostConstruct
     void init() {
-        for (TaskRunner runner : runners) {
-            registry.put(runner.getTaskType(), runner);
+        for (TaskRunner r : runners) {
+            registry.put(r.getTaskType(), r.getClass());
         }
     }
 
-    public TaskRunner create(CoordinatorProto.TaskAssignment assignment) {
-        Class<? extends TaskRunner> runnerClass = registry.get(assignment.getTaskType());
+    public TaskRunner create(CoordinatorProto.TaskAssignment task) {
+        Class<? extends TaskRunner> runnerClass = registry.get(task.getTaskType());
         if (runnerClass == null) {
-            throw new IllegalArgumentException("Unknown task type: " + assignment.getTaskType());
+            throw new IllegalArgumentException("Unknown task type: " + task.getTaskType());
         }
-
-        // Spring creates a new bean instance of that class
         TaskRunner runner = ctx.getBean(runnerClass);
-        return runner.withAssignment(assignment);
+        return runner.withTask(task);
     }
 }
