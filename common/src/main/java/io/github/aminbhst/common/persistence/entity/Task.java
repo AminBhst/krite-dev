@@ -19,6 +19,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskType type;
 
+    @Column(nullable = false)
+    private String sourceFileHash;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus status = TaskStatus.INITIAL;

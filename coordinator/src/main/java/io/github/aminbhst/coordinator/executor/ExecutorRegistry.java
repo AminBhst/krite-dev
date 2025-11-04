@@ -23,8 +23,8 @@ public class ExecutorRegistry {
     private final AtomicInteger rrIndex = new AtomicInteger(0);
 
     public void addExecutor(CoordinatorProto.ExecutorInfo executor) {
-        executors.put(executor.getNodeId(), executor);
-        executorTasks.computeIfAbsent(executor.getNodeId(), k -> new LinkedBlockingDeque<>());
+        executors.put(executor.getExecutorId(), executor);
+        executorTasks.computeIfAbsent(executor.getExecutorId(), k -> new LinkedBlockingDeque<>());
         rebuildWeights();
     }
 
@@ -102,7 +102,7 @@ public class ExecutorRegistry {
             double totalScore = wCores * coresScore + wMemory * memoryScore + wCpuLoad * cpuScore;
 
             int weight = Math.max(1, (int) Math.round(totalScore * 10));
-            weights.put(e.getNodeId(), weight);
+            weights.put(e.getExecutorId(), weight);
         }
         return weights;
     }
