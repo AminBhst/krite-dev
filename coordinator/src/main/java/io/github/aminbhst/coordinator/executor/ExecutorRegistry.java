@@ -54,25 +54,23 @@ public class ExecutorRegistry {
         return (queue != null) ? queue.poll() : null;
     }
 
-    public List<CoordinatorProto.TaskAssignment> pollTasks(String executorId, int maxCount) {
+    public List<Task> pollTasks(String executorId, int maxCount) {
         BlockingDeque<Task> queue = executorTasks.get(executorId);
         if (queue == null) {
             return List.of();
         }
 
-        List<CoordinatorProto.TaskAssignment> batch = new ArrayList<>(maxCount);
+        List<Task> batch = new ArrayList<>(maxCount);
 
         for (int i = 0; i < maxCount; i++) {
             Task task = queue.poll();
             if (task == null) break;
-
-            var assignment = CoordinatorProto.TaskAssignment.newBuilder()
-                    .setTaskId(task.getId().toString())
-                    .setSourceFileObjectKey(task.getSourceFileObjectKey())
-                    .setTaskType(String.valueOf(task.getType()))
-                    .build();
-
-            batch.add(assignment);
+//            var assignment = CoordinatorProto.TaskAssignment.newBuilder()
+//                    .setTaskId(task.getId().toString())
+//                    .setSourceFileObjectKey(task.getSourceFileObjectKey())
+//                    .setTaskType(String.valueOf(task.getType()))
+//                    .build();
+            batch.add(task);
         }
 
         return batch;
@@ -133,6 +131,13 @@ public class ExecutorRegistry {
             weights.put(e.getExecutorId(), weight);
         }
         return weights;
+    }
+
+    public boolean taskNotInQueue(Task task) {
+        return executorTasks
+                .values()
+                .stream()
+                .noneMatch(tasks -> tasks.contains(task));
     }
 
     public boolean isEmpty() {

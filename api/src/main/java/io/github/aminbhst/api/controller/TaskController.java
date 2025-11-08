@@ -42,7 +42,8 @@ public class TaskController {
     )
     public ResponseEntity<String> createTask(
             @AuthenticationPrincipal User user,
-            HttpServletRequest request, @PathVariable String taskType) throws ServletException, IOException {
+            HttpServletRequest request,
+            @PathVariable String taskType) throws ServletException, IOException {
 
         Task task = new Task();
         try {
@@ -69,9 +70,6 @@ public class TaskController {
         taskRepository.save(task);
 
         return ResponseEntity.ok().build();
-    }
-
-    public record TaskRequest(TaskType type) {
     }
 
 }

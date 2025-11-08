@@ -30,7 +30,7 @@ public class CoordinatorClient {
 
     public CoordinatorProto.RegistrationResponse registerExecutor() {
         var request = CoordinatorProto.ExecutorInfo.newBuilder()
-                .setExecutorId(UUID.randomUUID().toString())
+                .setExecutorId(executorConfig.getId())
                 .setHostname(executorConfig.getId())
                 .setCpuLoad(systemMonitor.getCpuLoad())
                 .setCpuCores(systemMonitor.getPhysicalCores())

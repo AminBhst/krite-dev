@@ -2,6 +2,7 @@ package io.github.aminbhst.common.persistence.entity;
 
 import io.github.aminbhst.common.core.task.TaskStatus;
 import io.github.aminbhst.common.core.task.TaskType;
+import io.github.aminbhst.coordinator.CoordinatorProto;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -39,5 +40,13 @@ public class Task {
 
     @Column
     private LocalDateTime updatedAt;
+
+    public CoordinatorProto.TaskAssignment toTaskAssignment() {
+        return CoordinatorProto.TaskAssignment.newBuilder()
+                .setTaskId(this.getId().toString())
+                .setSourceFileObjectKey(this.getSourceFileObjectKey())
+                .setTaskType(String.valueOf(this.getType()))
+                .build();
+    }
 
 }

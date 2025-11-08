@@ -1,5 +1,6 @@
 package io.github.aminbhst.executor.runner;
 
+import io.github.aminbhst.common.core.task.TaskType;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -15,12 +16,12 @@ public class CompressTaskRunner implements TaskRunner {
 
     @Override
     public void run() {
-        System.out.println("asdaopsdjasdpoj");
+        System.out.println("Running compression task");
     }
 
     @Override
     public String getTaskType() {
-        return "COMPRESS";
+        return TaskType.COMPRESS.toString();
     }
 
     @Override

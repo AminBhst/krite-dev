@@ -5,5 +5,7 @@ public enum TaskStatus {
     IN_QUEUE,
     IN_PROGRESS,
     COMPLETE,
+    IN_COORDINATOR_QUEUE,
+    IN_EXECUTOR_QUEUE,
     FAILED
 }

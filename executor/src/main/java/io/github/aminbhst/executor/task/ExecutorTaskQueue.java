@@ -16,6 +16,7 @@ public class ExecutorTaskQueue {
     public final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
 
     public void pushTask(CoordinatorProto.TaskAssignment task) {
+        System.out.println("Pushing task " + task.getTaskId() + "to executor queue");
         taskQueueAssignment.add(task);
     }
 

@@ -26,6 +26,9 @@ dependencies {
     implementation 'io.grpc:grpc-services'
     implementation("com.github.oshi:oshi-core:6.9.0")
     implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    compileOnly 'io.github.aminbhst:quartz-auto-config-boot:1.0.0'
+    annotationProcessor 'io.github.aminbhst:quartz-auto-config-boot:1.0.0'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'

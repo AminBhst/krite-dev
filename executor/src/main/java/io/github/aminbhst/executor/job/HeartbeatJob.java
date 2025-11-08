@@ -15,7 +15,7 @@ public class HeartbeatJob {
     private final CoordinatorClient coordinatorClient;
 
 
-    @Scheduled(fixedRate = 5_000)
+    @Scheduled(fixedDelay = 5000)
     public void sendHeartbeat() {
         try {
             var response = coordinatorClient.sendHeartbeat();
