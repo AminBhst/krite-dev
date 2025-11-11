@@ -32,6 +32,7 @@ public class TaskRunnerFactory {
             throw new IllegalArgumentException("Unknown task type: " + task.getTaskType());
         }
         TaskRunner runner = ctx.getBean(runnerClass);
-        return runner.withTask(task);
+        runner.withTask(task);
+        return runner;
     }
 }

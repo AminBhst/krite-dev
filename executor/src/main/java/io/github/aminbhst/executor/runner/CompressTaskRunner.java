@@ -1,22 +1,42 @@
 package io.github.aminbhst.executor.runner;
 
+import com.github.luben.zstd.ZstdOutputStream;
 import io.github.aminbhst.common.core.task.TaskType;
+import io.github.aminbhst.common.storage.StorageService;
 import io.github.aminbhst.coordinator.CoordinatorProto;
-import lombok.RequiredArgsConstructor;
+import io.github.aminbhst.executor.persistence.repository.ExecutorLogRepository;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class CompressTaskRunner implements TaskRunner {
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
-    private CoordinatorProto.TaskAssignment task;
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class CompressTaskRunner extends TaskRunner {
+
+    private final StorageService storageService;
+
+    protected CompressTaskRunner(ExecutorLogRepository executorLogRepository, StorageService storageService) {
+        super(executorLogRepository);
+        this.storageService = storageService;
+    }
 
     @Override
-    public void run() {
-        System.out.println("Running compression task");
+    protected void runInternal() throws Exception {
+        try (InputStream input = storageService.download(super.task.getSourceFileObjectKey())) {
+            var out = new ByteArrayOutputStream();
+            try (ZstdOutputStream zstdOut = new ZstdOutputStream(out)) {
+                input.transferTo(zstdOut);
+                storageService.upload(
+                        new ByteArrayInputStream(out.toByteArray()),
+                        out.size(),
+                        "application/octet-stream"
+                );
+            }
+        }
     }
 
     @Override
@@ -25,8 +45,7 @@ public class CompressTaskRunner implements TaskRunner {
     }
 
     @Override
-    public TaskRunner withTask(CoordinatorProto.TaskAssignment assignment) {
+    public void withTask(CoordinatorProto.TaskAssignment assignment) {
         this.task = assignment;
-        return this;
     }
 }

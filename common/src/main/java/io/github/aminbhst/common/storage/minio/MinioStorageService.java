@@ -1,6 +1,7 @@
 package io.github.aminbhst.common.storage.minio;
 
 import io.github.aminbhst.common.storage.StorageService;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,16 @@ public class MinioStorageService implements StorageService {
         } catch (Exception e) {
             throw new RuntimeException("File upload failed", e);
         }
+    }
+
+    @Override
+    public InputStream download(String id) throws Exception {
+        return minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(id)
+                        .build()
+        );
     }
 
 }
