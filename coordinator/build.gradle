@@ -27,7 +27,7 @@ dependencies {
     implementation 'io.minio:minio:8.6.0'
     implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'

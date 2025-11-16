@@ -7,6 +7,11 @@ service Coordinator {
   rpc RegisterExecutor(ExecutorInfo) returns (RegistrationResponse);
   rpc SendHeartbeat(ExecutorHeartbeat) returns (HeartbeatResponse);
   rpc PollTasks(TaskPollRequest) returns (TaskBatch);
+  rpc SendTasksStatus(TaskStatusBatch) returns (Empty);
+}
+
+message Empty {
+
 }
 
 message RegistrationResponse {
@@ -33,8 +38,18 @@ message TaskBatch {
   repeated TaskAssignment tasks = 1;
 }
 
+message TaskStatusBatch {
+  repeated TaskStatus statuses = 1;
+}
+
+message TaskStatus {
+  int64 taskId = 1;
+  string status = 2;
+  string outputObjectKey = 3;
+}
+
 message TaskAssignment {
-  string taskId = 1;
+  int64 taskId = 1;
   string taskType = 2;
   string sourceFileObjectKey = 3;
 }

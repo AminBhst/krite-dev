@@ -7,9 +7,15 @@ import io.github.aminbhst.coordinator.executor.ExecutorRegistry;
 import io.github.aminbhst.coordinator.CoordinatorGrpc;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import io.grpc.stub.StreamObserver;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase {
@@ -26,12 +32,20 @@ public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase 
                 .setMessage("Executor registered successfully: " + request.getExecutorId())
                 .build();
 
+        log.info("Executor {} registered successfully ", request.getExecutorId());
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
     @Override
     public void sendHeartbeat(CoordinatorProto.ExecutorHeartbeat request, StreamObserver<CoordinatorProto.HeartbeatResponse> responseObserver) {
+        executorRegistry.recalculateExecutorsWeights(request);
+        responseObserver.onNext(
+                CoordinatorProto.HeartbeatResponse.newBuilder()
+                        .setAlive(true)
+                        .build()
+        );
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -53,4 +67,24 @@ public class CoordinatorGrpcService extends CoordinatorGrpc.CoordinatorImplBase 
         responseObserver.onCompleted();
     }
 
+    @Override
+    @Transactional
+    public void sendTasksStatus(CoordinatorProto.TaskStatusBatch request, StreamObserver<CoordinatorProto.Empty> responseObserver) {
+        for (CoordinatorProto.TaskStatus taskStatus : request.getStatusesList()) {
+            Optional<Task> taskOptional = taskRepository.findById(taskStatus.getTaskId());
+            if (taskOptional.isEmpty()) {
+                log.error("Failed to find task {}", taskStatus.getTaskId());
+                continue;
+            }
+            Task task = taskOptional.get();
+            if (task.getStatus() != TaskStatus.COMPLETE) {
+                task.setStatus(TaskStatus.valueOf(taskStatus.getStatus()));
+                task.setOutputFileObjectKey(taskStatus.getOutputObjectKey());
+            }
+            task.setUpdatedAt(LocalDateTime.now());
+            taskRepository.save(task);
+        }
+        responseObserver.onNext(CoordinatorProto.Empty.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
 }

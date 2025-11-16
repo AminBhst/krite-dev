@@ -2,6 +2,7 @@ package io.github.aminbhst.coordinator.executor;
 
 import io.github.aminbhst.common.persistence.entity.Task;
 import io.github.aminbhst.coordinator.CoordinatorProto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Component
 public class ExecutorRegistry {
 
@@ -19,6 +21,20 @@ public class ExecutorRegistry {
     private final List<String> executorsWeighted = new ArrayList<>();
 
     private final AtomicInteger rrIndex = new AtomicInteger(0);
+
+    public void recalculateExecutorsWeights(CoordinatorProto.ExecutorHeartbeat heartbeat) {
+        CoordinatorProto.ExecutorInfo executorInfo = executors.get(heartbeat.getId());
+        if (executorInfo == null) {
+            log.warn("No executor available for heartbeat! executor id: {}", heartbeat.getId());
+            return;
+        }
+        CoordinatorProto.ExecutorInfo.Builder newInfo = CoordinatorProto.ExecutorInfo.newBuilder(executorInfo)
+                .setCpuLoad(heartbeat.getCpuLoad())
+                .setMemoryFree(heartbeat.getMemoryFree());
+        executors.put(heartbeat.getId(), newInfo.build());
+        executorTasks.computeIfAbsent(heartbeat.getId(), k -> new LinkedBlockingDeque<>());
+        rebuildWeights();
+    }
 
     public void addExecutor(CoordinatorProto.ExecutorInfo executor) {
         executors.put(executor.getExecutorId(), executor);
@@ -137,7 +153,7 @@ public class ExecutorRegistry {
         return executorTasks
                 .values()
                 .stream()
-                .noneMatch(tasks -> tasks.contains(task));
+                .noneMatch(tasks -> tasks.stream().anyMatch(t -> t.getId().equals(task.getId())));
     }
 
     public boolean isEmpty() {

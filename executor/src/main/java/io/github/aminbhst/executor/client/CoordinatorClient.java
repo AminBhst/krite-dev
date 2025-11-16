@@ -7,7 +7,7 @@ import io.github.aminbhst.executor.util.SystemMonitor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -51,4 +51,9 @@ public class CoordinatorClient {
         return stub.sendHeartbeat(heartbeat);
     }
 
+    public void sendTaskStatuses(List<CoordinatorProto.TaskStatus> statuses) {
+        var response = stub.sendTasksStatus(
+                CoordinatorProto.TaskStatusBatch.newBuilder().addAllStatuses(statuses).build()
+        );
+    }
 }

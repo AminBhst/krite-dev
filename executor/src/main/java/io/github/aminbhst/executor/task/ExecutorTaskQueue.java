@@ -3,20 +3,24 @@ package io.github.aminbhst.executor.task;
 import io.github.aminbhst.coordinator.CoordinatorProto;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class ExecutorTaskQueue {
 
     private final Queue<CoordinatorProto.TaskAssignment> taskQueueAssignment = new ConcurrentLinkedQueue<>();
 
-    public final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+    public final List<CoordinatorProto.TaskStatus> taskStatuses = new CopyOnWriteArrayList<>();
+
+    public void addTaskStatus(CoordinatorProto.TaskStatus taskStatus) {
+        taskStatuses.removeIf(status -> status.getTaskId() == taskStatus.getTaskId());
+        taskStatuses.add(taskStatus);
+    }
 
     public void pushTask(CoordinatorProto.TaskAssignment task) {
-        System.out.println("Pushing task " + task.getTaskId() + "to executor queue");
         taskQueueAssignment.add(task);
     }
 

@@ -19,7 +19,7 @@ public class ExecutorLog {
 
     private Instant timestamp;
     private String executorId;
-    private String taskId;
+    private Long taskId;
     private String taskType;
     private String message;
 

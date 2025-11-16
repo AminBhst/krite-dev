@@ -43,7 +43,7 @@ public class Task {
 
     public CoordinatorProto.TaskAssignment toTaskAssignment() {
         return CoordinatorProto.TaskAssignment.newBuilder()
-                .setTaskId(this.getId().toString())
+                .setTaskId(this.getId())
                 .setSourceFileObjectKey(this.getSourceFileObjectKey())
                 .setTaskType(String.valueOf(this.getType()))
                 .build();

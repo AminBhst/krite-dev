@@ -1,11 +1,11 @@
 package io.github.aminbhst.api.security;
 
 import io.github.aminbhst.api.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -53,7 +54,7 @@ public class SecurityConfig {
         return args -> {
             if (userService.findByUsername("admin").isEmpty()) {
                 userService.createUser("admin", "1234", "ADMIN");
-                System.out.println("✅ Default admin user created: admin / 1234");
+                log.info("✅ Default admin user created: admin / 1234");
             }
         };
     }

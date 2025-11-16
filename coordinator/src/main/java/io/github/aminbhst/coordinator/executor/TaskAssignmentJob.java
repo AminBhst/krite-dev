@@ -6,12 +6,14 @@ import io.github.aminbhst.common.persistence.repository.TaskRepository;
 import io.github.aminbhst.coordinator.service.TaskService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TaskAssignmentJob {
@@ -23,13 +25,15 @@ public class TaskAssignmentJob {
     @Transactional
     @Scheduled(fixedDelay = 5000)
     public void assignPendingTasks() {
-        if (executorRegistry.isEmpty()) return;
-
+        if (executorRegistry.isEmpty()) {
+            log.info("No executor registered! skipping task assignment");
+            return;
+        }
         List<Task> unassigned = taskService.findPendingTasks(Pageable.ofSize(50));
         for (Task task : unassigned) {
             executorRegistry.pushTask(task);
             task.setStatus(TaskStatus.IN_COORDINATOR_QUEUE);
-            System.out.println("Assigning task " + task.getId() + " to coordinator");
+            log.info("Assigning task {} to coordinator", task.getId());
         }
         taskRepository.saveAll(unassigned);
     }
